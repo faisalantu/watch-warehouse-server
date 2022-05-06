@@ -30,7 +30,19 @@ router.get("/", async (req, res) => {
     res.status(200).send(product);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send({ success: false, masssage: "no posts" });
+    res.status(500).send({ success: false, masssage: "no products" });
+  }
+});
+// @route   GET api/product/productcount
+// @desc    get all product count
+// @access  private
+router.get("/productcount", async (req, res) => {
+  try {
+    const counts = await ProductModel.count()
+    res.status(200).send({success: true,totalProducts:counts});
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send({ success: false, masssage: "error while counting" });
   }
 });
 
@@ -41,11 +53,11 @@ router.get("/", async (req, res) => {
 router.get("/one", async (req, res) => {
   try {
     let { productId } = req.query;
-    let postObjId = mongoose.Types.ObjectId(productId);
+    let productObjId = mongoose.Types.ObjectId(productId);
     function matchQuery() {
       if (productId) {
         return {
-          _id: postObjId,
+          _id: productObjId,
         };
       } else {
       }
@@ -54,7 +66,7 @@ router.get("/one", async (req, res) => {
     res.status(200).send(product);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send({ success: false, masssage: "no posts" });
+    res.status(500).send({ success: false, masssage: "no products" });
   }
 });
 
