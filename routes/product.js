@@ -25,7 +25,26 @@ router.get("/", async (req, res) => {
     const product = await ProductModel.aggregate()
       .match(matchQuery())
       .skip(skip ? skip : 0)
-      .limit(limit ? limit : 20);
+      .limit(limit ? limit : 10);
+
+    res.status(200).send(product);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send({ success: false, masssage: "no products" });
+  }
+});
+
+// @route   GET api/product/limited
+// @desc    get limited product (6)
+// @access  private
+router.get("/limited", async (req, res) => {
+  try {
+    let { skip, limit } = req.query;
+    skip = Number(skip);
+    limit = Number(limit);
+    const product = await ProductModel.aggregate()
+      .skip(skip ? skip : 0)
+      .limit(limit ? limit : 6);
 
     res.status(200).send(product);
   } catch (err) {
@@ -43,6 +62,30 @@ router.get("/productcount", async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).send({ success: false, masssage: "error while counting" });
+  }
+});
+
+// @route   GET api/product/userproductcount
+// @desc    get all product count
+// @access  private
+router.get("/userproductcount", async (req, res) => {
+  try {
+    let { userEmail } = req.query;
+    function matchQuery() {
+      if (userEmail) {
+        return {
+          userEmail: userEmail,
+        };
+      } else {
+        return {};
+      }
+    }
+    const product = await ProductModel.aggregate()
+      .match(matchQuery())
+    res.status(200).send({success: true,totalProducts:product.length});
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send({ success: false, masssage: "no products" });
   }
 });
 
@@ -81,6 +124,7 @@ router.post("/", async (req, res) => {
     quantity: req.body.quantity,
     price: req.body.price,
     userEmail: req.body.userEmail,
+    displayName: req.body.displayName,
   });
   console.log(product);
   try {
@@ -99,7 +143,7 @@ router.post("/", async (req, res) => {
 // @access  Private
 router.delete("/one", async (req, res) => {
   try {
-    let { productId } = req.query;
+    let  productId  = req.body.productId;
     const product = await ProductModel.findByIdAndDelete({ _id: productId });
     if(!product) throw error
     res.status(200).send({ success: true, message: "product deleted" });
