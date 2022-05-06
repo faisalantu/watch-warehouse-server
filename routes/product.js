@@ -57,8 +57,8 @@ router.get("/limited", async (req, res) => {
 // @access  private
 router.get("/productcount", async (req, res) => {
   try {
-    const counts = await ProductModel.count()
-    res.status(200).send({success: true,totalProducts:counts});
+    const counts = await ProductModel.count();
+    res.status(200).send({ success: true, totalProducts: counts });
   } catch (err) {
     console.error(err.message);
     res.status(500).send({ success: false, masssage: "error while counting" });
@@ -80,9 +80,8 @@ router.get("/userproductcount", async (req, res) => {
         return {};
       }
     }
-    const product = await ProductModel.aggregate()
-      .match(matchQuery())
-    res.status(200).send({success: true,totalProducts:product.length});
+    const product = await ProductModel.aggregate().match(matchQuery());
+    res.status(200).send({ success: true, totalProducts: product.length });
   } catch (err) {
     console.error(err.message);
     res.status(500).send({ success: false, masssage: "no products" });
@@ -138,14 +137,32 @@ router.post("/", async (req, res) => {
   }
 });
 
+// @route   PUT api/products/quantity
+// @desc    update quantiry
+// @access  Private
+router.put("/quantity", async (req, res) => {
+  let { productId } = req.query;
+  try {
+    const product = await ProductModel.findById(productId);
+    product.quantity = req.body.quantity;
+    await product.save();
+    res.status(200).send(product);
+  } catch (err) {
+    console.log(err);
+    res
+      .status(500)
+      .send({ success: false, message: "product quantiry cant be updated" });
+  }
+});
+
 // @route   DELETE api/product/one
 // @desc    delete one product
 // @access  Private
 router.delete("/one", async (req, res) => {
   try {
-    let  productId  = req.body.productId;
+    let productId = req.body.productId;
     const product = await ProductModel.findByIdAndDelete({ _id: productId });
-    if(!product) throw error
+    if (!product) throw error;
     res.status(200).send({ success: true, message: "product deleted" });
   } catch (err) {
     res
