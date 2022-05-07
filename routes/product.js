@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 // @desc    get all product
 // @access  private
 // @query   userEmail,club,skip,limit
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
     let { userEmail, skip, limit } = req.query;
     skip = Number(skip);
